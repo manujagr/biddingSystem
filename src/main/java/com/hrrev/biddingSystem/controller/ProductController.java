@@ -1,6 +1,7 @@
 package com.hrrev.biddingSystem.controller;
 
 
+import com.hrrev.biddingSystem.dto.VendorRegistrationRequest;
 import com.hrrev.biddingSystem.model.Vendor;
 import com.hrrev.biddingSystem.service.VendorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,8 @@ public class ProductController {
     private VendorService vendorService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerVendor(@RequestBody Vendor vendor) {
-        Vendor createdVendor = vendorService.registerVendor(vendor);
+    public ResponseEntity<?> registerVendor(@RequestBody VendorRegistrationRequest vendorRequest) {
+        Vendor createdVendor = vendorService.registerVendor(vendorRequest);
         return ResponseEntity.ok(createdVendor);
     }
 
