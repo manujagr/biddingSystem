@@ -2,11 +2,15 @@ package com.hrrev.biddingSystem.model;
 
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "auction_slots")
 public class AuctionSlot {
@@ -21,6 +25,7 @@ public class AuctionSlot {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
+    @Getter
     @Enumerated(EnumType.STRING)
     private SlotStatus status; // Scheduled, Active, Completed
 
