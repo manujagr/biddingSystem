@@ -1,0 +1,23 @@
+package com.hrrev.biddingSystem.model;
+
+import jakarta.persistence.*;
+
+import javax.management.relation.Role;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Entity
+@Table(name = "categories")
+public class Category {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID categoryId;
+
+    @Column(nullable = false)
+    private String name;
+
+    private String description;
+
+    // Getters and Setters
+}
