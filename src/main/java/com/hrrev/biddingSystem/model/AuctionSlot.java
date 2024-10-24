@@ -4,6 +4,8 @@ package com.hrrev.biddingSystem.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -29,7 +31,10 @@ public class AuctionSlot {
     @Enumerated(EnumType.STRING)
     private SlotStatus status; // Scheduled, Active, Completed
 
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     // Getters and Setters

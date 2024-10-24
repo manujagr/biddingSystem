@@ -4,6 +4,8 @@ package com.hrrev.biddingSystem.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.management.relation.Role;
 import java.math.BigDecimal;
@@ -31,7 +33,10 @@ public class Product {
     private String description;
     private BigDecimal basePrice;
     private String imageUrl;
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     // Getters and Setters
