@@ -44,11 +44,8 @@ public class BidService {
         // Get base price
         BigDecimal basePrice = slot.getProduct().getBasePrice();
 
-        Optional<Bid> highestBidOpt = bidRepository.findTopBySlotOrderByBidAmountDesc(slot);
-        BigDecimal highestBidAmount = highestBidOpt.map(Bid::getBidAmount).orElse(basePrice);
-
-        if (bidRequest.getBidAmount().compareTo(highestBidAmount) <= 0) {
-            throw new Exception("Bid amount must be higher than the current highest bid");
+        if (bidRequest.getBidAmount().compareTo(basePrice) <= 0) {
+            throw new Exception("Bid amount must be higher than the current base price");
         }
 
         Bid bid = new Bid();
