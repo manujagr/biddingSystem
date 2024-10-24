@@ -34,8 +34,8 @@ public class AuctionSlotService {
         }
 
         // Check if an auction slot already exists for this product
-        if (auctionSlotRepository.findByProduct(product).isPresent()) {
-            throw new Exception("Auction slot already exists for this product");
+        if (!auctionSlotRepository.findByProductAndStatus(product, AuctionSlot.SlotStatus.ACTIVE).isEmpty()) {
+            throw new Exception("Active auction slot already exists for this product");
         }
 
         // Create a new AuctionSlot entity

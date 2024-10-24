@@ -11,5 +11,6 @@ import java.util.List;
 public interface AuctionSlotRepository extends JpaRepository<AuctionSlot, Long> {
     List<AuctionSlot> findByStatus(AuctionSlot.SlotStatus status);
     List<AuctionSlot> findByEndTimeBeforeAndStatus(LocalDateTime now, AuctionSlot.SlotStatus status);
+    List<AuctionSlot> findByProductAndStatus(Product product, AuctionSlot.SlotStatus status);
 }
 
