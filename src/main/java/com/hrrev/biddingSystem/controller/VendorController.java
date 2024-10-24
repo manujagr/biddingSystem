@@ -3,6 +3,7 @@ package com.hrrev.biddingSystem.controller;
 
 import com.hrrev.biddingSystem.model.Vendor;
 import com.hrrev.biddingSystem.service.VendorService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +19,7 @@ public class VendorController {
     private VendorService vendorService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerVendor(@RequestBody Vendor vendor) {
+    public ResponseEntity<?> registerVendor(@Valid @RequestBody Vendor vendor) {
         Vendor createdVendor = vendorService.registerVendor(vendor);
         return ResponseEntity.ok(createdVendor);
     }
