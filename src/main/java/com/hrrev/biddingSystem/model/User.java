@@ -6,7 +6,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
-import javax.management.relation.Role;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -35,6 +35,4 @@ public class User {
     @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-
-    // Getters and Setters
 }

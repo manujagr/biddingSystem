@@ -14,6 +14,7 @@ import java.util.List;
 @Service
 public class AuctionSlotService {
 
+    @Autowired
     public AuctionSlotService(AuctionSlotRepository auctionSlotRepository, ProductRepository productRepository) {
         this.auctionSlotRepository = auctionSlotRepository;
         this.productRepository = productRepository;
