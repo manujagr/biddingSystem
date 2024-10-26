@@ -5,6 +5,7 @@ import com.hrrev.biddingSystem.model.User;
 import com.hrrev.biddingSystem.repository.UserRepository;
 import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -36,8 +37,7 @@ public class UserService {
     }
 
     private String hashPassword(String password) {
-        // Implement password hashing logic (e.g., BCrypt)
-        return password; // Placeholder
+        return new BCryptPasswordEncoder().encode(password);
     }
 
 }

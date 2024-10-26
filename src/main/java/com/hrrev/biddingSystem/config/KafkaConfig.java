@@ -1,28 +1,89 @@
 package com.hrrev.biddingSystem.config;
 
-import com.hrrev.biddingSystem.events.AuctionEndedEvent;
-import com.hrrev.biddingSystem.events.AuctionStartedEvent;
-import org.apache.kafka.clients.admin.NewTopic;
+import com.hrrev.biddingSystem.notification.UserNotification;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.config.TopicBuilder;
+import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.core.*;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
+@EnableKafka
 public class KafkaConfig {
 
+    // Producer configuration
     @Bean
-    public NewTopic auctionStartedTopic() {
-        return TopicBuilder.name("auction-started")
-                .partitions(3)
-                .replicas(1)
-                .build();
+    public ProducerFactory<String, Object> producerFactory() {
+        Map<String, Object> configProps = new HashMap<>();
+        configProps.put(
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                "localhost:9092" // Adjust the server address as needed
+        );
+        configProps.put(
+                ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+                StringSerializer.class
+        );
+        configProps.put(
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                JsonSerializer.class
+        );
+        return new DefaultKafkaProducerFactory<>(configProps);
     }
 
     @Bean
-    public NewTopic auctionEndedTopic() {
-        return TopicBuilder.name("auction-ended")
-                .partitions(3)
-                .replicas(1)
-                .build();
+    public KafkaTemplate<String, Object> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
+    }
+
+    // Consumer configuration
+    @Bean
+    public ConsumerFactory<String, UserNotification> consumerFactory() {
+        JsonDeserializer<UserNotification> deserializer = new JsonDeserializer<>(UserNotification.class);
+        deserializer.addTrustedPackages("com.hrrev.biddingSystem.notification");
+
+        Map<String, Object> configProps = new HashMap<>();
+        configProps.put(
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                "localhost:9092" // Adjust the server address as needed
+        );
+        configProps.put(
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class
+        );
+        configProps.put(
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                deserializer
+        );
+        configProps.put(
+                ConsumerConfig.GROUP_ID_CONFIG,
+                "notification-group"
+        );
+        configProps.put(
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+                "earliest"
+        );
+
+        return new DefaultKafkaConsumerFactory<>(
+                configProps,
+                new StringDeserializer(),
+                deserializer
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, UserNotification> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, UserNotification> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory());
+        return factory;
     }
 }

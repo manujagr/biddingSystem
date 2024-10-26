@@ -1,84 +1,53 @@
 package com.hrrev.biddingSystem.service;
 
-import com.hrrev.biddingSystem.model.AuctionSlot;
 import com.hrrev.biddingSystem.model.User;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import com.hrrev.biddingSystem.notification.NotificationChannel;
+import com.hrrev.biddingSystem.notification.NotificationStrategy;
+import com.hrrev.biddingSystem.notification.NotificationMessage;
+import com.hrrev.biddingSystem.notification.NotificationMessage.MessageType;
+import com.hrrev.biddingSystem.repository.NotificationPreferenceRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 @Service
 public class NotificationService {
 
-    private final JavaMailSender mailSender;
+    private NotificationPreferenceRepository preferenceRepository;
+    private Map<String, NotificationStrategy> notificationStrategies;
 
-    public NotificationService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
+    @Autowired
+    public NotificationService(NotificationPreferenceRepository notificationPreferenceRepository, Map<String, NotificationStrategy> notificationStrategies){
+        this.notificationStrategies = notificationStrategies;
+        this.preferenceRepository = notificationPreferenceRepository;
     }
 
     @Async("notificationExecutor")
-    public void notifyAuctionStarted(Set<User> users, AuctionSlot slot) {
-        users.forEach(user -> sendAuctionStartedEmail(user, slot));
-    }
-
-    public void notifyVendorAuctionStarted(User vendor, AuctionSlot slot) {
-        // Build and send email to vendor
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(vendor.getEmail());
-        message.setSubject("Your Auction Has Started");
-        message.setText("Your auction for " + slot.getProduct().getName() + " has started.");
-        mailSender.send(message);
+    public void notifyUsers(Set<User> users, NotificationMessage message) {
+        for (User user : users) {
+            notifyUser(user, message);
+        }
     }
 
     @Async("notificationExecutor")
-    public void notifyAuctionEnded(Set<User> users, AuctionSlot slot, UUID winnerUserId) {
-        users.forEach(user -> {
-            if (user.getUserId().equals(winnerUserId)) {
-                sendWinnerEmail(user, slot);
-            } else {
-                sendAuctionEndedEmail(user, slot);
+    public void notifyUser(User user, NotificationMessage message) {
+        MessageType messageType = message.getType();
+
+        for (NotificationChannel channel : NotificationChannel.values()) {
+            if (isUserSubscribed(user, channel, messageType)) {
+                String strategyBeanName = channel.name().toLowerCase() + "NotificationStrategy";
+                NotificationStrategy strategy = notificationStrategies.get(strategyBeanName);
+                if (strategy != null) {
+                    strategy.sendNotification(user, message);
+                }
             }
-        });
-        User vendor = slot.getProduct().getVendor().getUser();
-        sendVendorNotification(vendor, slot, winnerUserId);
+        }
     }
 
-    private void sendVendorNotification(User vendor, AuctionSlot slot, UUID winnerUserId) {
-        // Build and send email to vendor
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(vendor.getEmail());
-        message.setSubject("Your Auction Has Ended");
-        message.setText("Your auction for " + slot.getProduct().getName() + " has ended.");
-        mailSender.send(message);
-    }
-
-    private void sendAuctionStartedEmail(User user, AuctionSlot slot) {
-        // Build and send email
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(user.getEmail());
-        message.setSubject("Auction Started");
-        message.setText("The auction for " + slot.getProduct().getName() + " has started.");
-        mailSender.send(message);
-    }
-
-    private void sendAuctionEndedEmail(User user, AuctionSlot slot) {
-        // Build and send email
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(user.getEmail());
-        message.setSubject("Auction Ended");
-        message.setText("The auction for " + slot.getProduct().getName() + " has ended.");
-        mailSender.send(message);
-    }
-
-    private void sendWinnerEmail(User user, AuctionSlot slot) {
-        // Build and send email
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(user.getEmail());
-        message.setSubject("Congratulations! You Won the Auction");
-        message.setText("You have won the auction for " + slot.getProduct().getName() + "!");
-        mailSender.send(message);
+    private boolean isUserSubscribed(User user, NotificationChannel channel, MessageType messageType) {
+        return preferenceRepository.existsByUserAndChannelAndMessageTypeAndSubscribedTrue(user, channel, messageType);
     }
 }

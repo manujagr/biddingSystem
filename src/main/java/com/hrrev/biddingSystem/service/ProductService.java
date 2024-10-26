@@ -7,6 +7,7 @@ import com.hrrev.biddingSystem.model.Vendor;
 import com.hrrev.biddingSystem.repository.CategoryRepository;
 import com.hrrev.biddingSystem.repository.ProductRepository;
 import com.hrrev.biddingSystem.repository.VendorRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -18,6 +19,7 @@ public class ProductService {
     private final VendorRepository vendorRepository;
     private final CategoryRepository categoryRepository;
 
+    @Autowired
     public ProductService(ProductRepository productRepository,
                           VendorRepository vendorRepository,
                           CategoryRepository categoryRepository) {
@@ -26,9 +28,6 @@ public class ProductService {
         this.categoryRepository = categoryRepository;
 
     }
-
-
-
 
     public Product createProduct(ProductRegistrationRequest productRequest, UUID userId) throws Exception {
         Vendor vendor = vendorRepository.findById(userId)
