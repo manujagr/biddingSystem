@@ -6,12 +6,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Getter
 @Setter
 public class BidRegistrationRequest {
     @NotNull
-    private Long slotId;
+    private UUID slotId;
 
     @NotNull
     @DecimalMin("0.0")

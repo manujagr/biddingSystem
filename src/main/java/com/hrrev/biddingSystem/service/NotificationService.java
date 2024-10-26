@@ -7,7 +7,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -21,8 +20,17 @@ public class NotificationService {
     }
 
     @Async("notificationExecutor")
-    public void notifyAuctionStarted(List<User> users, AuctionSlot slot) {
+    public void notifyAuctionStarted(Set<User> users, AuctionSlot slot) {
         users.forEach(user -> sendAuctionStartedEmail(user, slot));
+    }
+
+    public void notifyVendorAuctionStarted(User vendor, AuctionSlot slot) {
+        // Build and send email to vendor
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(vendor.getEmail());
+        message.setSubject("Your Auction Has Started");
+        message.setText("Your auction for " + slot.getProduct().getName() + " has started.");
+        mailSender.send(message);
     }
 
     @Async("notificationExecutor")
