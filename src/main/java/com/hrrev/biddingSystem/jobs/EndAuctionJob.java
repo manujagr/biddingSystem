@@ -34,7 +34,7 @@ public class EndAuctionJob implements Job {
             auctionSlotRepository.save(slot);
 
             // Determine winner
-            Bid winningBid = bidRepository.findTopBySlotOrderByBidAmountDesc(slot);
+            Bid winningBid = bidRepository.findTopBySlotOrderByBidAmountDesc(slot).orElse(null);
 
             UUID winningBidId = null;
             UUID winnerUserId = null;

@@ -9,9 +9,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public interface AuctionSlotRepository extends JpaRepository<AuctionSlot, Long> {
+public interface AuctionSlotRepository extends JpaRepository<AuctionSlot, UUID> {
     List<AuctionSlot> findByStatus(AuctionSlot.SlotStatus status);
     List<AuctionSlot> findByProductAndStatus(Product product, AuctionSlot.SlotStatus status);
-    List<AuctionSlot> findById(UUID slotId);
 }
 
