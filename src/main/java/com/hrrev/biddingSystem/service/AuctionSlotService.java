@@ -8,6 +8,7 @@ import com.hrrev.biddingSystem.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -15,14 +16,14 @@ import java.util.UUID;
 @Service
 public class AuctionSlotService {
 
+    private final AuctionSlotRepository auctionSlotRepository;
+    private final ProductRepository productRepository;
+
     @Autowired
     public AuctionSlotService(AuctionSlotRepository auctionSlotRepository, ProductRepository productRepository) {
         this.auctionSlotRepository = auctionSlotRepository;
         this.productRepository = productRepository;
     }
-
-    private final AuctionSlotRepository auctionSlotRepository;
-    private final ProductRepository productRepository;
 
     public AuctionSlot scheduleAuctionSlot(AuctionSlotRegistrationRequest slotRequest, UUID userId) throws Exception {
 
@@ -38,6 +39,9 @@ public class AuctionSlotService {
         if (!auctionSlotRepository.findByProductAndStatus(product, AuctionSlot.SlotStatus.ACTIVE).isEmpty()) {
             throw new Exception("Active auction slot already exists for this product");
         }
+
+        // Validate timing constraints
+        validateAuctionSlotTiming(slotRequest.getStartTime(), slotRequest.getEndTime());
 
         // Create a new AuctionSlot entity
         AuctionSlot slot = new AuctionSlot();
@@ -57,6 +61,18 @@ public class AuctionSlotService {
 
         // Implement slot scheduling logic
         return auctionSlotRepository.save(slot);
+    }
+
+    private void validateAuctionSlotTiming(LocalDateTime startTime, LocalDateTime endTime) throws Exception {
+        // Check that the auction slot duration is at least one day
+        if (Duration.between(startTime, endTime).toDays() < 1) {
+            throw new Exception("Auction slot duration must be at least 1 day.");
+        }
+
+        // Check that start and end times are multiples of 30 minutes
+        if (startTime.getMinute() % 30 != 0 || endTime.getMinute() % 30 != 0) {
+            throw new Exception("Auction slot timings must be in multiples of 30 minutes.");
+        }
     }
 
     public List<AuctionSlot> getActiveAuctionSlots() {
