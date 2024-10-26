@@ -1,15 +1,20 @@
 package com.hrrev.biddingSystem.service;
 
 import com.hrrev.biddingSystem.dto.AuctionSlotRegistrationRequest;
+import com.hrrev.biddingSystem.jobs.EndAuctionJob;
+import com.hrrev.biddingSystem.jobs.StartAuctionJob;
 import com.hrrev.biddingSystem.model.AuctionSlot;
 import com.hrrev.biddingSystem.model.Product;
 import com.hrrev.biddingSystem.repository.AuctionSlotRepository;
 import com.hrrev.biddingSystem.repository.ProductRepository;
+import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,11 +23,13 @@ public class AuctionSlotService {
 
     private final AuctionSlotRepository auctionSlotRepository;
     private final ProductRepository productRepository;
+    private final Scheduler scheduler;
 
     @Autowired
-    public AuctionSlotService(AuctionSlotRepository auctionSlotRepository, ProductRepository productRepository) {
+    public AuctionSlotService(AuctionSlotRepository auctionSlotRepository, ProductRepository productRepository, Scheduler scheduler) {
         this.auctionSlotRepository = auctionSlotRepository;
         this.productRepository = productRepository;
+        this.scheduler = scheduler;
     }
 
     public AuctionSlot scheduleAuctionSlot(AuctionSlotRegistrationRequest slotRequest, UUID userId) throws Exception {
@@ -59,8 +66,42 @@ public class AuctionSlotService {
             throw new Exception("Invalid auction slot time range");
         }
 
-        // Implement slot scheduling logic
-        return auctionSlotRepository.save(slot);
+        // Save the AuctionSlot
+        AuctionSlot auctionSlot = auctionSlotRepository.save(slot);
+
+        // Schedule the start and end jobs
+        scheduleStartAuctionJob(auctionSlot);
+        scheduleEndAuctionJob(auctionSlot);
+
+        return auctionSlot;
+    }
+
+    private void scheduleStartAuctionJob(AuctionSlot slot) throws SchedulerException {
+        JobDetail jobDetail = JobBuilder.newJob(StartAuctionJob.class)
+                .withIdentity("startAuctionJob-" + slot.getSlotId(), "auction-jobs")
+                .usingJobData("slotId", slot.getSlotId().toString())
+                .build();
+
+        Trigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity("startAuctionTrigger-" + slot.getSlotId(), "auction-triggers")
+                .startAt(Date.from(slot.getStartTime().atZone(ZoneId.systemDefault()).toInstant()))
+                .build();
+
+        scheduler.scheduleJob(jobDetail, trigger);
+    }
+
+    private void scheduleEndAuctionJob(AuctionSlot slot) throws SchedulerException {
+        JobDetail jobDetail = JobBuilder.newJob(EndAuctionJob.class)
+                .withIdentity("endAuctionJob-" + slot.getSlotId(), "auction-jobs")
+                .usingJobData("slotId", slot.getSlotId().toString())
+                .build();
+
+        Trigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity("endAuctionTrigger-" + slot.getSlotId(), "auction-triggers")
+                .startAt(Date.from(slot.getEndTime().atZone(ZoneId.systemDefault()).toInstant()))
+                .build();
+
+        scheduler.scheduleJob(jobDetail, trigger);
     }
 
     private void validateAuctionSlotTiming(LocalDateTime startTime, LocalDateTime endTime) throws Exception {

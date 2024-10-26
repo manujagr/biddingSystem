@@ -7,9 +7,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public interface AuctionSlotRepository extends JpaRepository<AuctionSlot, Long> {
     List<AuctionSlot> findByStatus(AuctionSlot.SlotStatus status);
     List<AuctionSlot> findByProductAndStatus(Product product, AuctionSlot.SlotStatus status);
+    List<AuctionSlot> findById(UUID slotId);
 }
 
