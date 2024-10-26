@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -33,8 +35,8 @@ public class ProductController {
     public ResponseEntity<?> createProduct(@Valid @RequestBody ProductRegistrationRequest productRequest,
                                            Authentication authentication) {
         try {
-            Long vendorId = getVendorIdFromAuth(authentication);
-            Product createdProduct = productService.createProduct(productRequest, vendorId);
+            UUID userId = getVendorIdFromAuth(authentication);
+            Product createdProduct = productService.createProduct(productRequest, userId);
             ProductResponse productResponse = new ProductResponse(createdProduct);
             return ResponseEntity.status(HttpStatus.CREATED).body(productResponse);
         } catch (Exception e) {
@@ -43,7 +45,7 @@ public class ProductController {
     }
 
     // Helper method to extract vendor ID from Authentication
-    private Long getVendorIdFromAuth(Authentication authentication) {
+    private UUID getVendorIdFromAuth(Authentication authentication) {
         // Implement logic to extract vendor ID from authentication
         return authentication.getUserId(); // Placeholder
     }

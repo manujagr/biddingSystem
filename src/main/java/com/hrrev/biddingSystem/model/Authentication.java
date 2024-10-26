@@ -2,12 +2,13 @@ package com.hrrev.biddingSystem.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
-
-import jakarta.persistence.*;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -16,6 +17,10 @@ import java.util.Set;
 public class Authentication {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "user_id", updatable = false, nullable = false)
+    private UUID userId;
+
     private String username;
 
     private String password;
@@ -24,22 +29,6 @@ public class Authentication {
 
     public Authentication(String username, String password) {
         this.username = username;
-        this.password = password;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
         this.password = password;
     }
 }

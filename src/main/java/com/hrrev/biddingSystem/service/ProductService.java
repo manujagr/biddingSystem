@@ -9,6 +9,8 @@ import com.hrrev.biddingSystem.repository.ProductRepository;
 import com.hrrev.biddingSystem.repository.VendorRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class ProductService {
 
@@ -28,8 +30,8 @@ public class ProductService {
 
 
 
-    public Product createProduct(ProductRegistrationRequest productRequest, Long vendorId) throws Exception {
-        Vendor vendor = vendorRepository.findById(vendorId)
+    public Product createProduct(ProductRegistrationRequest productRequest, UUID userId) throws Exception {
+        Vendor vendor = vendorRepository.findById(userId)
                 .orElseThrow(() -> new Exception("Vendor not found"));
 
         Category category = categoryRepository.findById(productRequest.getCategoryId())

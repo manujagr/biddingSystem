@@ -1,6 +1,5 @@
 package com.hrrev.biddingSystem.controller;
 
-
 import com.hrrev.biddingSystem.dto.BidRegistrationRequest;
 import com.hrrev.biddingSystem.model.Authentication;
 import com.hrrev.biddingSystem.model.Bid;
@@ -10,12 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/bids")
 public class BidController {
-
 
     private final BidService bidService;
 
@@ -27,7 +25,7 @@ public class BidController {
     @PostMapping("/slots/{slotId}")
     public ResponseEntity<?> placeBid(@Valid @RequestBody BidRegistrationRequest bidRequest, Authentication authentication) {
         try {
-            Long userId = getUserIdFromAuth(authentication);
+            UUID userId = getUserIdFromAuth(authentication);
             Bid bid = bidService.placeBid(bidRequest, userId);
             return ResponseEntity.ok("Bid placed successfully");
         } catch (Exception e) {
@@ -36,9 +34,8 @@ public class BidController {
     }
 
     // Helper method to extract user ID from Authentication
-    private Long getUserIdFromAuth(Authentication authentication) {
-        // Implement logic to extract user ID
-        return authentication.getUserId(); // Placeholder
+    private UUID getUserIdFromAuth(Authentication authentication) {
+        // Returning the UUID userId from Authentication
+        return authentication.getUserId();
     }
 }
-

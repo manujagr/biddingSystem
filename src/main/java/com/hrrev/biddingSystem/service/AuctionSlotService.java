@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class AuctionSlotService {
@@ -23,13 +24,13 @@ public class AuctionSlotService {
     private final AuctionSlotRepository auctionSlotRepository;
     private final ProductRepository productRepository;
 
-    public AuctionSlot scheduleAuctionSlot(AuctionSlotRegistrationRequest slotRequest, String username) throws Exception {
+    public AuctionSlot scheduleAuctionSlot(AuctionSlotRegistrationRequest slotRequest, UUID userId) throws Exception {
 
         Product product = productRepository.findById(slotRequest.getProductId())
                 .orElseThrow(() -> new Exception("Product not found"));
 
         // Verify the product belongs to the vendor
-        if (!product.getVendor().getVendorId().equals(username)) {
+        if (!product.getVendor().getVendorId().equals(userId)) {
             throw new Exception("Unauthorized: Vendor does not own this product");
         }
 

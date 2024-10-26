@@ -1,6 +1,5 @@
 package com.hrrev.biddingSystem.controller;
 
-
 import com.hrrev.biddingSystem.dto.AuctionSlotRegistrationRequest;
 import com.hrrev.biddingSystem.dto.AuctionSlotResponse;
 import com.hrrev.biddingSystem.model.AuctionSlot;
@@ -13,12 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auction-slots")
 public class AuctionSlotController {
-
 
     private final AuctionSlotService auctionSlotService;
 
@@ -31,8 +30,8 @@ public class AuctionSlotController {
     public ResponseEntity<?> registerAuctionSlot(@Valid @RequestBody AuctionSlotRegistrationRequest slotRequest,
                                                  Authentication authentication) {
         try {
-            String userName = getVendorIdFromAuth(authentication);
-            AuctionSlot slot = auctionSlotService.scheduleAuctionSlot(slotRequest, userName);
+            UUID userId = getVendorIdFromAuth(authentication);
+            AuctionSlot slot = auctionSlotService.scheduleAuctionSlot(slotRequest, userId);
             AuctionSlotResponse slotResponse = new AuctionSlotResponse(slot);
             return ResponseEntity.status(HttpStatus.CREATED).body(slotResponse);
         } catch (Exception e) {
@@ -50,9 +49,8 @@ public class AuctionSlotController {
     }
 
     // Helper method to extract vendor ID from Authentication
-    private String getVendorIdFromAuth(Authentication authentication) {
-        // Implement logic to extract vendor ID from authentication
-        return authentication.getUsername(); // Placeholder
+    private UUID getVendorIdFromAuth(Authentication authentication) {
+        // Returning the UUID userId from Authentication
+        return authentication.getUserId();
     }
 }
-

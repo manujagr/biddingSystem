@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class BidService {
@@ -29,7 +30,7 @@ public class BidService {
         this.userRepository = userRepository;
     }
 
-    public Bid placeBid(BidRegistrationRequest bidRequest, Long userId) throws Exception {
+    public Bid placeBid(BidRegistrationRequest bidRequest, UUID userId) throws Exception {
         AuctionSlot slot = auctionSlotRepository.findById(bidRequest.getSlotId())
                 .orElseThrow(() -> new Exception("Auction slot not found"));
 
