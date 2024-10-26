@@ -31,8 +31,8 @@ public class AuctionSlotController {
     public ResponseEntity<?> registerAuctionSlot(@Valid @RequestBody AuctionSlotRegistrationRequest slotRequest,
                                                  Authentication authentication) {
         try {
-            Long vendorId = getVendorIdFromAuth(authentication);
-            AuctionSlot slot = auctionSlotService.scheduleAuctionSlot(slotRequest, vendorId);
+            String userName = getVendorIdFromAuth(authentication);
+            AuctionSlot slot = auctionSlotService.scheduleAuctionSlot(slotRequest, userName);
             AuctionSlotResponse slotResponse = new AuctionSlotResponse(slot);
             return ResponseEntity.status(HttpStatus.CREATED).body(slotResponse);
         } catch (Exception e) {
@@ -50,9 +50,9 @@ public class AuctionSlotController {
     }
 
     // Helper method to extract vendor ID from Authentication
-    private Long getVendorIdFromAuth(Authentication authentication) {
+    private String getVendorIdFromAuth(Authentication authentication) {
         // Implement logic to extract vendor ID from authentication
-        return authentication.getUserId(); // Placeholder
+        return authentication.getUsername(); // Placeholder
     }
 }
 

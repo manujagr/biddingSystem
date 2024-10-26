@@ -20,17 +20,16 @@ public class AuctionSlotService {
         this.productRepository = productRepository;
     }
 
-
     private final AuctionSlotRepository auctionSlotRepository;
     private final ProductRepository productRepository;
 
-    public AuctionSlot scheduleAuctionSlot(AuctionSlotRegistrationRequest slotRequest, Long vendorId) throws Exception {
+    public AuctionSlot scheduleAuctionSlot(AuctionSlotRegistrationRequest slotRequest, String username) throws Exception {
 
         Product product = productRepository.findById(slotRequest.getProductId())
                 .orElseThrow(() -> new Exception("Product not found"));
 
         // Verify the product belongs to the vendor
-        if (!product.getVendor().getVendorId().equals(vendorId)) {
+        if (!product.getVendor().getVendorId().equals(username)) {
             throw new Exception("Unauthorized: Vendor does not own this product");
         }
 
@@ -62,7 +61,5 @@ public class AuctionSlotService {
     public List<AuctionSlot> getActiveAuctionSlots() {
         return auctionSlotRepository.findByStatus(AuctionSlot.SlotStatus.ACTIVE);
     }
-
     // Additional methods
 }
-

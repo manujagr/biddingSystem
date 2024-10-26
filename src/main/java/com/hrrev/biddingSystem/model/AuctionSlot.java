@@ -37,7 +37,6 @@ public class AuctionSlot {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    // Getters and Setters
 
     public enum SlotStatus {
         SCHEDULED,

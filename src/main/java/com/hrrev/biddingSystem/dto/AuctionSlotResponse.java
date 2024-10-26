@@ -1,10 +1,14 @@
 package com.hrrev.biddingSystem.dto;
 
 import com.hrrev.biddingSystem.model.AuctionSlot;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
+@Setter
 public class AuctionSlotResponse {
 
     private UUID slotId;

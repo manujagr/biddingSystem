@@ -20,6 +20,5 @@ public class CategoryResponse {
         this.description = category.getDescription();
     }
 
-    // Getters and Setters
 }
 
