@@ -26,8 +26,5 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
-
     // Additional endpoints for login, etc.
-
 }
