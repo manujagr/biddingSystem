@@ -11,7 +11,14 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "bids")
+@Table(
+        name = "bids",
+        indexes = {
+                @Index(name = "idx_bid_slot_id", columnList = "slot_id"),
+                @Index(name = "idx_bid_user_id", columnList = "user_id"),
+                @Index(name = "idx_bid_bid_amount", columnList = "bidAmount")
+        }
+)
 public class Bid {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -25,8 +32,9 @@ public class Bid {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(nullable = false)
     private BigDecimal bidAmount;
-    private LocalDateTime bidTime;
 
-    // Getters and Setters
+    @Column(nullable = false)
+    private LocalDateTime bidTime;
 }

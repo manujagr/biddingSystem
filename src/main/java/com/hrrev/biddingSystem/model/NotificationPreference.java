@@ -1,20 +1,28 @@
-// File: src/main/java/com/hrrev/biddingSystem/model/NotificationPreference.java
-
 package com.hrrev.biddingSystem.model;
 
 import com.hrrev.biddingSystem.notification.NotificationChannel;
 import com.hrrev.biddingSystem.notification.NotificationMessage.MessageType;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.UUID;
 
+@Getter
+@Setter
 @Entity
-@Table(name = "notification_preferences",
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "channel", "message_type"})})
+@Table(
+        name = "notification_preferences",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "channel", "message_type"}),
+        indexes = {
+                @Index(name = "idx_notification_preference_user_id", columnList = "user_id")
+        }
+)
 public class NotificationPreference {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID preferenceId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,51 +39,4 @@ public class NotificationPreference {
 
     @Column(nullable = false)
     private boolean subscribed;
-
-    // Constructors
-    public NotificationPreference() {}
-
-    public NotificationPreference(User user, NotificationChannel channel, MessageType messageType, boolean subscribed) {
-        this.user = user;
-        this.channel = channel;
-        this.messageType = messageType;
-        this.subscribed = subscribed;
-    }
-
-    // Getters and Setters
-    public UUID getPreferenceId() {
-        return preferenceId;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public NotificationChannel getChannel() {
-        return channel;
-    }
-
-    public MessageType getMessageType() {
-        return messageType;
-    }
-
-    public boolean isSubscribed() {
-        return subscribed;
-    }
-
-    public void setSubscribed(boolean subscribed) {
-        this.subscribed = subscribed;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public void setChannel(NotificationChannel channel) {
-        this.channel = channel;
-    }
-
-    public void setMessageType(MessageType messageType) {
-        this.messageType = messageType;
-    }
 }

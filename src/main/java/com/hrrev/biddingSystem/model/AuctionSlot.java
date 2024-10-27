@@ -1,42 +1,49 @@
 package com.hrrev.biddingSystem.model;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "auction_slots")
+@Table(name = "auction_slots",
+        indexes = {
+                @Index(name = "idx_product_id", columnList = "product_id"),
+                @Index(name = "idx_status", columnList = "status"),
+                @Index(name = "idx_start_time", columnList = "start_time")
+        })
 public class AuctionSlot {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID slotId;
 
     @OneToOne
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @Column(nullable = false)
     private LocalDateTime startTime;
+
+    @Column(nullable = false)
     private LocalDateTime endTime;
 
-    @Getter
     @Enumerated(EnumType.STRING)
-    private SlotStatus status; // Scheduled, Active, Completed
+    @Column(length = 20, nullable = false)
+    private SlotStatus status;
 
-    @CreatedDate
+    @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
 
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     public enum SlotStatus {
         SCHEDULED,
