@@ -5,6 +5,7 @@ import com.hrrev.biddingSystem.dto.AuctionSlotResponse;
 import com.hrrev.biddingSystem.model.AuctionSlot;
 import com.hrrev.biddingSystem.model.Authentication;
 import com.hrrev.biddingSystem.service.AuctionSlotService;
+import com.hrrev.biddingSystem.util.SecurityUtil;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,7 @@ public class AuctionSlotController {
     public ResponseEntity<?> registerAuctionSlot(@Valid @RequestBody AuctionSlotRegistrationRequest slotRequest,
                                                  Authentication authentication) {
         try {
-            UUID userId = getVendorIdFromAuth(authentication);
+            UUID userId = SecurityUtil.getCurrentUserUUID();
             AuctionSlot slot = auctionSlotService.scheduleAuctionSlot(slotRequest, userId);
             AuctionSlotResponse slotResponse = new AuctionSlotResponse(slot);
             logger.info("Auction slot registered successfully for user ID: {}", userId);
@@ -80,22 +81,5 @@ public class AuctionSlotController {
             logger.error("Error fetching active auction slots: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
-    }
-
-    /**
-     * Helper method to extract vendor ID from Authentication.
-     *
-     * @param authentication The authentication information.
-     * @return UUID representing the vendor's user ID.
-     */
-    private UUID getVendorIdFromAuth(Authentication authentication) {
-        if (authentication == null || authentication.getUserId() == null) {
-            logger.error("Unauthorized access attempt detected. Authentication details are missing.");
-            throw new NoSuchElementException("User is not authenticated.");
-        }
-
-        UUID userId = authentication.getUserId();
-        logger.debug("Extracted user ID from authentication: {}", userId);
-        return userId;
     }
 }

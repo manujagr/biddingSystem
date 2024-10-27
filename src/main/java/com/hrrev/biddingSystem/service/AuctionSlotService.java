@@ -43,7 +43,7 @@ public class AuctionSlotService {
                 });
 
         // Verify the product belongs to the vendor
-        if (!product.getVendor().getVendorId().equals(userId)) {
+        if (!product.getVendor().getUser().getUserId().equals(userId)) {
             logger.warn("Unauthorized access: Vendor {} does not own product {}", userId, slotRequest.getProductId());
             throw new SecurityException("Unauthorized: Vendor does not own this product");
         }
@@ -65,10 +65,12 @@ public class AuctionSlotService {
 
         // Set auction slot status based on current time
         LocalDateTime now = LocalDateTime.now();
-        if (slot.getStartTime().isAfter(now)) {
+        if (slot.getStartTime().isAfter(now) || slot.getStartTime().isEqual(now)) {
             slot.setStatus(AuctionSlot.SlotStatus.SCHEDULED);
         } else if (slot.getStartTime().isBefore(now) && slot.getEndTime().isAfter(now)) {
             slot.setStatus(AuctionSlot.SlotStatus.ACTIVE);
+        } else if (slot.getEndTime().isBefore(now) || slot.getEndTime().isEqual(now)) {
+            slot.setStatus(AuctionSlot.SlotStatus.COMPLETED);
         } else {
             logger.error("Invalid auction slot time range for product {}", slotRequest.getProductId());
             throw new IllegalArgumentException("Invalid auction slot time range");

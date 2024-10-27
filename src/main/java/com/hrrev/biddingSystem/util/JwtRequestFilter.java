@@ -49,7 +49,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         // Check if the username is valid and the user is not already authenticated
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+            CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
             logger.debug("Loaded user details for username: {}", username);
 
             if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {

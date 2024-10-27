@@ -20,5 +20,10 @@ public class CategoryResponse {
         this.description = category.getDescription();
     }
 
+    public CategoryResponse(UUID categoryId, String name, String description) {
+        this.categoryId = categoryId;
+        this.name = name;
+        this.description = description;
+    }
 }
 

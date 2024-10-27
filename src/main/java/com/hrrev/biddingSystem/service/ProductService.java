@@ -1,18 +1,23 @@
 package com.hrrev.biddingSystem.service;
 
 import com.hrrev.biddingSystem.dto.ProductRegistrationRequest;
+import com.hrrev.biddingSystem.dto.ProductResponse;
 import com.hrrev.biddingSystem.model.Category;
 import com.hrrev.biddingSystem.model.Product;
+import com.hrrev.biddingSystem.model.User;
 import com.hrrev.biddingSystem.model.Vendor;
 import com.hrrev.biddingSystem.repository.CategoryRepository;
 import com.hrrev.biddingSystem.repository.ProductRepository;
+import com.hrrev.biddingSystem.repository.UserRepository;
 import com.hrrev.biddingSystem.repository.VendorRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -22,19 +27,22 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final VendorRepository vendorRepository;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
 
     public ProductService(ProductRepository productRepository,
                           VendorRepository vendorRepository,
-                          CategoryRepository categoryRepository) {
+                          CategoryRepository categoryRepository, UserRepository userRepository) {
         this.productRepository = productRepository;
         this.vendorRepository = vendorRepository;
         this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;
     }
 
     public Product createProduct(ProductRegistrationRequest productRequest, UUID userId) {
         logger.info("Creating product for vendor ID: {}", userId);
 
-        Vendor vendor = vendorRepository.findById(userId)
+        User user = userRepository.findById(userId).get();
+        Vendor vendor = vendorRepository.findByUser(user)
                 .orElseThrow(() -> {
                     logger.error("Vendor not found for ID: {}", userId);
                     return new NoSuchElementException("Vendor not found");
@@ -58,5 +66,12 @@ public class ProductService {
         logger.info("Product created successfully with ID: {}", savedProduct.getProductId());
 
         return savedProduct;
+    }
+
+    public List<ProductResponse> getAllProducts() {
+        List<Product> productsList = productRepository.findAll();
+        return productsList.stream()
+                .map(ProductResponse::new) // Use the ProductResponse constructor for mapping
+                .collect(Collectors.toList());
     }
 }

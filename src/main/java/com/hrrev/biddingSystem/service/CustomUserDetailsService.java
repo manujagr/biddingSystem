@@ -2,6 +2,7 @@ package com.hrrev.biddingSystem.service;
 
 import com.hrrev.biddingSystem.model.User;
 import com.hrrev.biddingSystem.repository.UserRepository;
+import com.hrrev.biddingSystem.util.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
@@ -19,14 +20,15 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         // Fetch user from the database
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         // Return a UserDetails object
-        return new org.springframework.security.core.userdetails.User(
+        return new CustomUserDetails(
+                user.getUserId(),
                 user.getUsername(),
                 user.getPasswordHash(),
                 Collections.emptyList() // Add authorities if applicable
