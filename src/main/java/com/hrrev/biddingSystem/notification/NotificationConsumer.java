@@ -12,11 +12,15 @@ import java.util.List;
 @Component
 public class NotificationConsumer {
 
-    @Autowired
     private UserRepository userRepository;
 
-    @Autowired
     private NotificationStrategyFactory notificationStrategyFactory;
+
+    @Autowired
+    public NotificationConsumer(UserRepository userRepository, NotificationStrategyFactory notificationStrategyFactory){
+        this.notificationStrategyFactory = notificationStrategyFactory;
+        this.userRepository = userRepository;
+    }
 
     @KafkaListener(topics = "notification-topic", groupId = "notification-group")
     public void listen(UserNotification userNotification) {

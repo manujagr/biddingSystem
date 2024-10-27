@@ -4,7 +4,8 @@ import com.hrrev.biddingSystem.model.AuctionSlot;
 import com.hrrev.biddingSystem.model.User;
 import com.hrrev.biddingSystem.notification.NotificationMessage;
 import com.hrrev.biddingSystem.notification.NotificationMessage.MessageType;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -13,12 +14,13 @@ import java.util.UUID;
 @Service
 public class AuctionNotificationService {
 
-    private NotificationService notificationService;
+    private static final Logger logger = LoggerFactory.getLogger(AuctionNotificationService.class);
+    private final NotificationService notificationService;
 
-    @Autowired
-    public AuctionNotificationService(NotificationService notificationService){
+    public AuctionNotificationService(NotificationService notificationService) {
         this.notificationService = notificationService;
     }
+
     public void notifyAuctionStarted(Set<User> users, AuctionSlot slot) {
         users.forEach(user -> sendAuctionStartedNotification(user, slot));
     }
@@ -45,7 +47,12 @@ public class AuctionNotificationService {
                 "Auction Started",
                 "The auction for " + slot.getProduct().getName() + " has started."
         );
-        notificationService.notifyUser(user, message);
+        try {
+            notificationService.notifyUser(user, message);
+            logger.info("Auction started notification sent to user ID: {}", user.getUserId());
+        } catch (Exception e) {
+            logger.error("Failed to send auction started notification to user ID: {}: {}", user.getUserId(), e.getMessage());
+        }
     }
 
     private void sendAuctionEndedNotification(User user, AuctionSlot slot) {
@@ -54,7 +61,12 @@ public class AuctionNotificationService {
                 "Auction Ended",
                 "The auction for " + slot.getProduct().getName() + " has ended."
         );
-        notificationService.notifyUser(user, message);
+        try {
+            notificationService.notifyUser(user, message);
+            logger.info("Auction ended notification sent to user ID: {}", user.getUserId());
+        } catch (Exception e) {
+            logger.error("Failed to send auction ended notification to user ID: {}: {}", user.getUserId(), e.getMessage());
+        }
     }
 
     private void sendWinnerNotification(User user, AuctionSlot slot) {
@@ -63,7 +75,12 @@ public class AuctionNotificationService {
                 "Congratulations! You Won the Auction",
                 "You have won the auction for " + slot.getProduct().getName() + "!"
         );
-        notificationService.notifyUser(user, message);
+        try {
+            notificationService.notifyUser(user, message);
+            logger.info("Winner notification sent to user ID: {}", user.getUserId());
+        } catch (Exception e) {
+            logger.error("Failed to send winner notification to user ID: {}: {}", user.getUserId(), e.getMessage());
+        }
     }
 
     private void sendVendorAuctionStartedNotification(User vendor, AuctionSlot slot) {
@@ -72,7 +89,12 @@ public class AuctionNotificationService {
                 "Your Auction Has Started",
                 "Your auction for " + slot.getProduct().getName() + " has started."
         );
-        notificationService.notifyUser(vendor, message);
+        try {
+            notificationService.notifyUser(vendor, message);
+            logger.info("Vendor auction started notification sent to vendor ID: {}", vendor.getUserId());
+        } catch (Exception e) {
+            logger.error("Failed to send auction started notification to vendor ID: {}: {}", vendor.getUserId(), e.getMessage());
+        }
     }
 
     private void sendVendorAuctionEndedNotification(User vendor, AuctionSlot slot, UUID winnerUserId) {
@@ -87,6 +109,11 @@ public class AuctionNotificationService {
                 "Your Auction Has Ended",
                 content
         );
-        notificationService.notifyUser(vendor, message);
+        try {
+            notificationService.notifyUser(vendor, message);
+            logger.info("Vendor auction ended notification sent to vendor ID: {}", vendor.getUserId());
+        } catch (Exception e) {
+            logger.error("Failed to send auction ended notification to vendor ID: {}: {}", vendor.getUserId(), e.getMessage());
+        }
     }
 }

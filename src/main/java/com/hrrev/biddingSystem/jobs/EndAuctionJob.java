@@ -13,7 +13,8 @@ import com.hrrev.biddingSystem.repository.UserRepository;
 import com.hrrev.biddingSystem.repository.NotificationPreferenceRepository;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -23,33 +24,43 @@ import java.util.UUID;
 @Component
 public class EndAuctionJob implements Job {
 
-    @Autowired
-    private AuctionSlotRepository auctionSlotRepository;
+    private static final Logger logger = LoggerFactory.getLogger(EndAuctionJob.class);
 
-    @Autowired
-    private BidRepository bidRepository;
+    private final AuctionSlotRepository auctionSlotRepository;
+    private final BidRepository bidRepository;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final UserRepository userRepository;
+    private final NotificationPreferenceRepository notificationPreferenceRepository;
 
-    @Autowired
-    private KafkaTemplate<String, Object> kafkaTemplate;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private NotificationPreferenceRepository notificationPreferenceRepository;
+    public EndAuctionJob(
+            AuctionSlotRepository auctionSlotRepository,
+            BidRepository bidRepository,
+            KafkaTemplate<String, Object> kafkaTemplate,
+            UserRepository userRepository,
+            NotificationPreferenceRepository notificationPreferenceRepository
+    ) {
+        this.auctionSlotRepository = auctionSlotRepository;
+        this.bidRepository = bidRepository;
+        this.kafkaTemplate = kafkaTemplate;
+        this.userRepository = userRepository;
+        this.notificationPreferenceRepository = notificationPreferenceRepository;
+    }
 
     @Override
     public void execute(JobExecutionContext context) {
         UUID slotId = UUID.fromString(context.getMergedJobDataMap().getString("slotId"));
-        AuctionSlot slot = auctionSlotRepository.findById(slotId).orElse(null);
+        logger.info("Executing EndAuctionJob for slot ID: {}", slotId);
+
+        AuctionSlot slot = auctionSlotRepository.findById(slotId)
+                .orElse(null);
 
         if (slot != null && slot.getStatus() == AuctionSlot.SlotStatus.ACTIVE) {
             slot.setStatus(AuctionSlot.SlotStatus.COMPLETED);
             auctionSlotRepository.save(slot);
 
-            // Determine winner
-            Bid winningBid = bidRepository.findTopBySlotOrderByBidAmountDesc(slot).orElse(null);
+            logger.info("Auction slot ID: {} has been marked as completed.", slotId);
 
+            Bid winningBid = bidRepository.findTopBySlotOrderByBidAmountDesc(slot).orElse(null);
             UUID winningBidId = null;
             UUID winnerUserId = null;
 
@@ -58,7 +69,6 @@ public class EndAuctionJob implements Job {
                 winnerUserId = winningBid.getUser().getUserId();
             }
 
-            // Publish event to Kafka
             AuctionEndedEvent event = new AuctionEndedEvent(
                     slot.getSlotId(),
                     slot.getProduct().getProductId(),
@@ -66,8 +76,8 @@ public class EndAuctionJob implements Job {
                     winnerUserId
             );
             kafkaTemplate.send("auction-ended", event);
+            logger.info("AuctionEndedEvent published to Kafka for slot ID: {}", slot.getSlotId());
 
-            // Prepare notification messages
             NotificationMessage endedMessage = new NotificationMessage(
                     MessageType.AUCTION_ENDED,
                     "Auction Ended",
@@ -80,25 +90,18 @@ public class EndAuctionJob implements Job {
                     "You have won the auction for " + slot.getProduct().getName() + "!"
             );
 
-            // Fetch users who bid on the auction and are subscribed
             List<User> users = userRepository.findUsersWhoBidOnSlotAndSubscribed(slot, MessageType.AUCTION_ENDED);
 
             for (User user : users) {
-                NotificationMessage message = endedMessage;
-                MessageType messageType = MessageType.AUCTION_ENDED;
+                NotificationMessage message = user.getUserId().equals(winnerUserId) ? winnerMessage : endedMessage;
+                MessageType messageType = user.getUserId().equals(winnerUserId) ? MessageType.WINNER_NOTIFICATION : MessageType.AUCTION_ENDED;
 
-                if (user.getUserId().equals(winnerUserId)) {
-                    message = winnerMessage;
-                    messageType = MessageType.WINNER_NOTIFICATION;
-                }
-
-                // Check user preferences for notification channels and message types
                 if (notificationPreferenceRepository.existsByUserAndMessageTypeAndSubscribedTrue(user, messageType)) {
                     kafkaTemplate.send("notification-topic", new UserNotification(user.getUserId(), message));
+                    logger.info("Notification sent to user ID: {} for auction slot: {}", user.getUserId(), slot.getSlotId());
                 }
             }
 
-            // Notify vendor
             User vendor = slot.getProduct().getVendor().getUser();
             NotificationMessage vendorMessage = new NotificationMessage(
                     MessageType.VENDOR_NOTIFICATION,
@@ -108,7 +111,10 @@ public class EndAuctionJob implements Job {
 
             if (notificationPreferenceRepository.existsByUserAndMessageTypeAndSubscribedTrue(vendor, MessageType.VENDOR_NOTIFICATION)) {
                 kafkaTemplate.send("notification-topic", new UserNotification(vendor.getUserId(), vendorMessage));
+                logger.info("Notification sent to vendor ID: {} for auction slot: {}", vendor.getUserId(), slot.getSlotId());
             }
+        } else {
+            logger.warn("Auction slot ID: {} is not active or does not exist.", slotId);
         }
     }
 }

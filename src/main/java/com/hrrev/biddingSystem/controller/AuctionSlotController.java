@@ -2,7 +2,6 @@ package com.hrrev.biddingSystem.controller;
 
 import com.hrrev.biddingSystem.dto.AuctionSlotRegistrationRequest;
 import com.hrrev.biddingSystem.dto.AuctionSlotResponse;
-import com.hrrev.biddingSystem.exception.UnauthorizedException;
 import com.hrrev.biddingSystem.model.AuctionSlot;
 import com.hrrev.biddingSystem.model.Authentication;
 import com.hrrev.biddingSystem.service.AuctionSlotService;
@@ -15,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 public class AuctionSlotController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuctionSlotController.class);
-
     private final AuctionSlotService auctionSlotService;
 
     @Autowired
@@ -45,9 +44,17 @@ public class AuctionSlotController {
             UUID userId = getVendorIdFromAuth(authentication);
             AuctionSlot slot = auctionSlotService.scheduleAuctionSlot(slotRequest, userId);
             AuctionSlotResponse slotResponse = new AuctionSlotResponse(slot);
+            logger.info("Auction slot registered successfully for user ID: {}", userId);
             return ResponseEntity.status(HttpStatus.CREATED).body(slotResponse);
+        } catch (NoSuchElementException e) {
+            logger.error("Vendor ID not found: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Vendor not found.");
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid auction slot details provided: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid auction slot details.");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            logger.error("Unexpected error occurred while registering auction slot: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
         }
     }
 
@@ -60,19 +67,19 @@ public class AuctionSlotController {
     public ResponseEntity<List<AuctionSlotResponse>> getActiveAuctionSlots() {
         logger.info("Received request to fetch active auction slots.");
 
-        // Retrieve Active Auction Slots
-        List<AuctionSlot> slots = auctionSlotService.getActiveAuctionSlots();
+        try {
+            List<AuctionSlot> slots = auctionSlotService.getActiveAuctionSlots();
+            List<AuctionSlotResponse> slotResponses = slots.stream()
+                    .map(AuctionSlotResponse::new)
+                    .collect(Collectors.toList());
 
-        logger.debug("Number of active auction slots retrieved: {}", slots.size());
+            logger.info("Returning {} active auction slots.", slotResponses.size());
+            return ResponseEntity.ok(slotResponses);
 
-        // Convert to Response DTOs
-        List<AuctionSlotResponse> slotResponses = slots.stream()
-                .map(AuctionSlotResponse::new)
-                .collect(Collectors.toList());
-
-        logger.info("Returning {} active auction slots.", slotResponses.size());
-
-        return ResponseEntity.ok(slotResponses);
+        } catch (Exception e) {
+            logger.error("Error fetching active auction slots: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     /**
@@ -80,12 +87,11 @@ public class AuctionSlotController {
      *
      * @param authentication The authentication information.
      * @return UUID representing the vendor's user ID.
-     * @throws UnauthorizedException if authentication is invalid.
      */
     private UUID getVendorIdFromAuth(Authentication authentication) {
         if (authentication == null || authentication.getUserId() == null) {
             logger.error("Unauthorized access attempt detected. Authentication details are missing.");
-            throw new UnauthorizedException("User is not authenticated.", "AUTH_401");
+            throw new NoSuchElementException("User is not authenticated.");
         }
 
         UUID userId = authentication.getUserId();

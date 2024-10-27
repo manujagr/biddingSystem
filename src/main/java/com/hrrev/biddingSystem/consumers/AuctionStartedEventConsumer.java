@@ -1,7 +1,6 @@
 package com.hrrev.biddingSystem.consumers;
 
 import com.hrrev.biddingSystem.events.AuctionStartedEvent;
-import com.hrrev.biddingSystem.exception.ResourceNotFoundException;
 import com.hrrev.biddingSystem.model.AuctionSlot;
 import com.hrrev.biddingSystem.model.Bid;
 import com.hrrev.biddingSystem.model.Product;
@@ -10,12 +9,13 @@ import com.hrrev.biddingSystem.notification.NotificationMessage;
 import com.hrrev.biddingSystem.repository.AuctionSlotRepository;
 import com.hrrev.biddingSystem.repository.BidRepository;
 import com.hrrev.biddingSystem.service.NotificationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,14 +24,12 @@ public class AuctionStartedEventConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(AuctionStartedEventConsumer.class);
 
-    private AuctionSlotRepository auctionSlotRepository;
-
-    private BidRepository bidRepository;
-
-    private NotificationService notificationService;
+    private final AuctionSlotRepository auctionSlotRepository;
+    private final BidRepository bidRepository;
+    private final NotificationService notificationService;
 
     @Autowired
-    public AuctionStartedEventConsumer(AuctionSlotRepository auctionSlotRepository, BidRepository bidRepository, NotificationService notificationService){
+    public AuctionStartedEventConsumer(AuctionSlotRepository auctionSlotRepository, BidRepository bidRepository, NotificationService notificationService) {
         this.auctionSlotRepository = auctionSlotRepository;
         this.bidRepository = bidRepository;
         this.notificationService = notificationService;
@@ -42,14 +40,11 @@ public class AuctionStartedEventConsumer {
         logger.info("Received AuctionStartedEvent for slot ID: {}", event.getSlotId());
 
         try {
-            // Fetch the AuctionSlot
+            // Fetch the AuctionSlot or throw if not found
             AuctionSlot slot = auctionSlotRepository.findById(event.getSlotId())
-                    .orElseThrow(() -> {
-                        logger.error("AuctionSlot not found for ID: {}", event.getSlotId());
-                        return new ResourceNotFoundException("AuctionSlot not found for ID: " + event.getSlotId(), "AUCTION_404");
-                    });
+                    .orElseThrow(() -> new NoSuchElementException("AuctionSlot not found for ID: " + event.getSlotId()));
 
-            logger.info("Processing AuctionStartedEvent for slot: {}", slot.getSlotId());
+            logger.info("Processing AuctionStartedEvent for slot ID: {}", slot.getSlotId());
 
             Product product = slot.getProduct();
             logger.debug("Auction started for product: {}", product.getName());
@@ -81,8 +76,7 @@ public class AuctionStartedEventConsumer {
             logger.info("Notification process initiated for AuctionStartedEvent on product: {}", product.getName());
 
             // Optionally, notify the vendor separately
-            // Assuming there is a vendor associated with the product
-            User vendor = product.getVendor().getUser(); // Adjust based on your model
+            User vendor = product.getVendor().getUser();
             if (vendor != null) {
                 NotificationMessage vendorMessage = new NotificationMessage(
                         NotificationMessage.MessageType.VENDOR_NOTIFICATION,
@@ -95,14 +89,12 @@ public class AuctionStartedEventConsumer {
                 logger.warn("Vendor not found for product: {}", product.getName());
             }
 
-        } catch (ResourceNotFoundException ex) {
-            // Exception already logged in the lambda
-            // Optionally, perform additional actions (e.g., alerting, compensating transactions)
+        } catch (NoSuchElementException ex) {
+            // Log error for missing AuctionSlot
+            logger.error("AuctionSlot not found: {}", ex.getMessage());
         } catch (Exception ex) {
             logger.error("An unexpected error occurred while processing AuctionStartedEvent: {}", ex.getMessage(), ex);
-            // Optionally, rethrow or handle the exception to prevent message loss
-            // For example, send to a dead-letter topic or alert monitoring systems
+            // Optional: handle message loss by sending to a dead-letter topic or alerting a monitoring system
         }
     }
 }
-

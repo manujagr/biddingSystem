@@ -12,11 +12,15 @@ import java.util.*;
 @Component
 public class NotificationStrategyFactory {
 
-    @Autowired
     private NotificationPreferenceRepository preferenceRepository;
 
-    @Autowired
     private Map<String, NotificationStrategy> notificationStrategies;
+
+    @Autowired
+    public NotificationStrategyFactory(NotificationPreferenceRepository notificationPreferenceRepository, Map<String, NotificationStrategy> notificationStrategies){
+        this.notificationStrategies = notificationStrategies;
+        this.preferenceRepository = notificationPreferenceRepository;
+    }
 
     public List<NotificationStrategy> getStrategies(User user, MessageType messageType) {
         List<NotificationStrategy> strategies = new ArrayList<>();
