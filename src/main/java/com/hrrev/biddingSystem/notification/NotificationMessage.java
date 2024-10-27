@@ -1,5 +1,14 @@
 package com.hrrev.biddingSystem.notification;
 
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Data
 public class NotificationMessage {
 
     public enum MessageType {
@@ -17,17 +26,5 @@ public class NotificationMessage {
         this.type = type;
         this.subject = subject;
         this.content = content;
-    }
-
-    public MessageType getType() {
-        return type;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public String getContent() {
-        return content;
     }
 }

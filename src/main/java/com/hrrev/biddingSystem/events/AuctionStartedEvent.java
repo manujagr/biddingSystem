@@ -1,8 +1,17 @@
 package com.hrrev.biddingSystem.events;
 
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.UUID;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@Data
 public class AuctionStartedEvent implements Serializable {
     private UUID slotId;
     private UUID productId;
@@ -12,19 +21,4 @@ public class AuctionStartedEvent implements Serializable {
         this.productId = productId;
     }
 
-    public UUID getSlotId() {
-        return slotId;
-    }
-
-    public void setSlotId(UUID slotId) {
-        this.slotId = slotId;
-    }
-
-    public UUID getProductId() {
-        return productId;
-    }
-
-    public void setProductId(UUID productId) {
-        this.productId = productId;
-    }
 }

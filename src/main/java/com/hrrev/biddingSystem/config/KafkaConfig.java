@@ -50,7 +50,7 @@ public class KafkaConfig {
     @Bean
     public ConsumerFactory<String, UserNotification> consumerFactory() {
         JsonDeserializer<UserNotification> deserializer = new JsonDeserializer<>(UserNotification.class);
-        deserializer.addTrustedPackages("com.hrrev.biddingSystem.notification");
+        deserializer.addTrustedPackages("*");
 
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(
@@ -122,7 +122,7 @@ public class KafkaConfig {
     @Bean
     public ConsumerFactory<String, NotificationTask> notificationTaskConsumerFactory() {
         JsonDeserializer<NotificationTask> deserializer = new JsonDeserializer<>(NotificationTask.class);
-        deserializer.addTrustedPackages("com.hrrev.biddingSystem.notification");
+        deserializer.addTrustedPackages("*");
 
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(
