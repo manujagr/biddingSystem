@@ -55,4 +55,15 @@ public class VendorService {
             throw new RuntimeException("Failed to register vendor", e);
         }
     }
+
+    /**
+     * Retrieves the Vendor associated with a given User.
+     *
+     * @param user The User entity.
+     * @return The Vendor entity if present, else null.
+     */
+    public Vendor getVendorByUser(User user) {
+        return vendorRepository.findByUser(user).orElse(null);
+    }
+
 }
