@@ -2,7 +2,6 @@ package com.hrrev.biddingSystem.model;
 
 import com.hrrev.biddingSystem.notification.NotificationChannel;
 import com.hrrev.biddingSystem.notification.NotificationMessage.MessageType;
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +13,7 @@ import java.util.UUID;
 @Entity
 @Table(
         name = "notification_preferences",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "channel", "message_type"}),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "channel", "message_type", "category_id"}),
         indexes = {
                 @Index(name = "idx_notification_preference_user_id", columnList = "user_id")
         }
@@ -36,6 +35,10 @@ public class NotificationPreference {
     @Enumerated(EnumType.STRING)
     @Column(name = "message_type", nullable = false)
     private MessageType messageType;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     @Column(nullable = false)
     private boolean subscribed;

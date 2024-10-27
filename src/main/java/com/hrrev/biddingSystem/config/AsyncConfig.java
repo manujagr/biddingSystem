@@ -15,8 +15,8 @@ public class AsyncConfig {
     public Executor notificationExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(10); // Adjust based on your server capacity
-        executor.setMaxPoolSize(50);
-        executor.setQueueCapacity(50);
+        executor.setMaxPoolSize(20);
+        executor.setQueueCapacity(20);
         executor.setThreadNamePrefix("NotificationExecutor-");
         executor.initialize();
         return executor;

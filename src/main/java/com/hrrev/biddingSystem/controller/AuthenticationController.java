@@ -2,16 +2,18 @@ package com.hrrev.biddingSystem.controller;
 
 import com.hrrev.biddingSystem.dto.AuthenticationRequest;
 import com.hrrev.biddingSystem.util.JwtUtil;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
+
+import jakarta.validation.Valid;
+
+import java.util.Collections;
 
 @RestController
 public class AuthenticationController {
@@ -45,11 +47,14 @@ public class AuthenticationController {
             );
             // Generate and return JWT token
             String token = jwtUtil.generateToken(authenticationRequest.getUsername());
-            return ResponseEntity.ok(token);
+            return ResponseEntity.ok(Collections.singletonMap("token", token));
 
-        } catch (AuthenticationException e) {
+        } catch (BadCredentialsException e) {
             logger.error("Authentication failed for username: {}", authenticationRequest.getUsername(), e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect username or password");
+        } catch (AuthenticationException e) {
+            logger.error("Authentication failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
         } catch (Exception e) {
             logger.error("Unexpected error during authentication: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
