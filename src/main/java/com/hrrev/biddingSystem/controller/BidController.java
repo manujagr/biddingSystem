@@ -48,7 +48,7 @@ public class BidController {
 
         } catch (IllegalArgumentException e) {
             logger.error("Invalid bid request: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid bid request");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
 
         } catch (Exception e) {
             logger.error("An unexpected error occurred while placing the bid: {}", e.getMessage(), e);

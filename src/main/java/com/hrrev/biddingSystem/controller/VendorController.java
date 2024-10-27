@@ -4,6 +4,7 @@ import com.hrrev.biddingSystem.dto.VendorRegistrationRequest;
 import com.hrrev.biddingSystem.dto.VendorResponse;
 import com.hrrev.biddingSystem.model.Vendor;
 import com.hrrev.biddingSystem.service.VendorService;
+import com.hrrev.biddingSystem.util.SecurityUtil;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/vendors")
@@ -35,7 +37,8 @@ public class VendorController {
     @PostMapping("/register")
     public ResponseEntity<?> registerVendor(@Valid @RequestBody VendorRegistrationRequest request) {
         try {
-            Vendor createdVendor = vendorService.registerVendor(request);
+            UUID userId = SecurityUtil.getCurrentUserUUID();
+            Vendor createdVendor = vendorService.registerVendor(request, userId);
             VendorResponse vendorResponse = new VendorResponse(createdVendor);
             logger.info("Vendor registered successfully with ID: {}", createdVendor.getVendorId());
             return ResponseEntity.status(HttpStatus.CREATED).body(vendorResponse);

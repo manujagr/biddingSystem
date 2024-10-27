@@ -11,23 +11,28 @@ import lombok.Setter;
 @Setter
 public class VendorRegistrationRequest {
 
-    @NotBlank
-    @Size(min = 3, max = 50)
-    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Username can only contain alphanumeric characters")
-    private String username;
+//    @NotBlank
+//    @Size(min = 3, max = 50)
+//    @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Username can only contain alphanumeric characters")
+//    private String username;
+//
+//    @NotBlank
+//    @Size(min = 10, max = 50)
+//    @Email
+//    private String email;
+//
+//    @NotBlank
+//    @Size(min = 6)
+//    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+//            message = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character")
+//    private String password;
+//    private String companyName;
+//    private String contactInfo;
+      @NotBlank
+      @Size(min = 3, max = 50)
+      private String companyName;
 
-    @NotBlank
-    @Size(min = 10, max = 50)
-    @Email
-    private String email;
-
-    @NotBlank
-    @Size(min = 6)
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
-            message = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character")
-    private String password;
-
-    private String companyName;
-    private String contactInfo;
+      @NotBlank
+      private String contactInfo;
 
 }

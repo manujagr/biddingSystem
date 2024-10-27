@@ -137,10 +137,10 @@ public class AuctionSlotService {
         }
 
         // Check that start and end times are multiples of 30 minutes
-        if (startTime.getMinute() % 30 != 0 || endTime.getMinute() % 30 != 0) {
-            logger.error("Auction slot timings are not in multiples of 30 minutes. Start: {}, End: {}", startTime, endTime);
-            throw new IllegalArgumentException("Auction slot timings must be in multiples of 30 minutes.");
-        }
+//        if (startTime.getMinute() % 30 != 0 || endTime.getMinute() % 30 != 0) {
+//            logger.error("Auction slot timings are not in multiples of 30 minutes. Start: {}, End: {}", startTime, endTime);
+//            throw new IllegalArgumentException("Auction slot timings must be in multiples of 30 minutes.");
+//        }
     }
 
     public List<AuctionSlot> getActiveAuctionSlots() {

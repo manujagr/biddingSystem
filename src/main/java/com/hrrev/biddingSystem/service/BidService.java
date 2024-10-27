@@ -56,7 +56,7 @@ public class BidService {
 
         if (bidRequest.getBidAmount().compareTo(basePrice) <= 0) {
             logger.warn("Bid amount {} is not higher than the base price {} for product {}", bidRequest.getBidAmount(), basePrice, slot.getProduct().getName());
-            throw new IllegalArgumentException("Bid amount must be higher than the current base price");
+            throw new IllegalArgumentException("Bid amount must be higher than the current base price "+basePrice);
         }
 
         // Create and save the new bid

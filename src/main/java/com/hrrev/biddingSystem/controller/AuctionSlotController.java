@@ -35,12 +35,10 @@ public class AuctionSlotController {
      * Endpoint to register a new Auction Slot.
      *
      * @param slotRequest    The request payload containing auction slot details.
-     * @param authentication The authentication information of the vendor.
      * @return ResponseEntity containing the created AuctionSlotResponse.
      */
     @PostMapping
-    public ResponseEntity<?> registerAuctionSlot(@Valid @RequestBody AuctionSlotRegistrationRequest slotRequest,
-                                                 Authentication authentication) {
+    public ResponseEntity<?> registerAuctionSlot(@Valid @RequestBody AuctionSlotRegistrationRequest slotRequest) {
         try {
             UUID userId = SecurityUtil.getCurrentUserUUID();
             AuctionSlot slot = auctionSlotService.scheduleAuctionSlot(slotRequest, userId);
