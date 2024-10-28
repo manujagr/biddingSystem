@@ -14,9 +14,12 @@ import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,36 +32,47 @@ public class StartAuctionJob implements Job {
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final UserRepository userRepository;
     private final NotificationPreferenceRepository notificationPreferenceRepository;
+    private final RedisTemplate<String, Object> redisTemplate;
+
+    public static final String AUCTION_STARTED_TOPIC = "auction-started";
+    private static final String AUCTION_DETAILS_KEY = "auction:details:";
+
 
     @Autowired
     public StartAuctionJob(
             AuctionSlotRepository auctionSlotRepository,
             KafkaTemplate<String, Object> kafkaTemplate,
             UserRepository userRepository,
-            NotificationPreferenceRepository notificationPreferenceRepository
+            NotificationPreferenceRepository notificationPreferenceRepository,
+            RedisTemplate<String, Object> redisTemplate
     ) {
         this.auctionSlotRepository = auctionSlotRepository;
         this.kafkaTemplate = kafkaTemplate;
         this.userRepository = userRepository;
         this.notificationPreferenceRepository = notificationPreferenceRepository;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
     public void execute(JobExecutionContext context) {
         UUID slotId = UUID.fromString(context.getMergedJobDataMap().getString("slotId"));
         logger.info("Executing StartAuctionJob for slot ID: {}", slotId);
+        String key = AUCTION_DETAILS_KEY + slotId.toString();
 
         AuctionSlot slot = auctionSlotRepository.findById(slotId).orElse(null);
+        LocalDateTime endTime = slot.getEndTime();
 
         if (slot != null && slot.getStatus() == AuctionSlot.SlotStatus.SCHEDULED) {
             slot.setStatus(AuctionSlot.SlotStatus.ACTIVE);
             auctionSlotRepository.save(slot);
 
             logger.info("Auction slot ID: {} marked as ACTIVE", slotId);
+            redisTemplate.opsForHash().put(key, "basePrice", slot.getProduct().getBasePrice());
+            redisTemplate.opsForHash().put(key, "endTime", endTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
             // Publish event to Kafka
             AuctionStartedEvent event = new AuctionStartedEvent(slot.getSlotId(), slot.getProduct().getProductId());
-            kafkaTemplate.send("auction-started", event);
+            kafkaTemplate.send(AUCTION_STARTED_TOPIC, event);
             logger.info("AuctionStartedEvent published to Kafka for slot ID: {}", slot.getSlotId());
 
             // Prepare notification message for users

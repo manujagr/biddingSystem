@@ -1,16 +1,18 @@
 package com.intuit.biddingSystem.controller;
 
 import com.intuit.biddingSystem.dto.BidRegistrationRequest;
-import com.intuit.biddingSystem.model.Bid;
-import com.intuit.biddingSystem.service.BidService;
+import com.intuit.biddingSystem.model.BidMessage;
 import com.intuit.biddingSystem.util.SecurityUtil;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -19,10 +21,12 @@ import java.util.UUID;
 public class BidController {
 
     private static final Logger logger = LoggerFactory.getLogger(BidController.class);
-    private final BidService bidService;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private static final String BIDS_TOPIC = "bids-topic";
 
-    public BidController(BidService bidService) {
-        this.bidService = bidService;
+    @Autowired
+    public BidController(KafkaTemplate<String, Object> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     /**
@@ -31,29 +35,18 @@ public class BidController {
      * @param bidRequest The bid details.
      * @return ResponseEntity indicating the outcome of the bid placement.
      */
-    @PostMapping("/slots")
+    @PostMapping("/slots/{slotId}")
     public ResponseEntity<?> placeBid(@Valid @RequestBody BidRegistrationRequest bidRequest) {
         try {
             UUID userId = SecurityUtil.getCurrentUserUUID();
-            if (userId == null) {
-                logger.warn("Unauthenticated user attempted to place a bid");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
-            }
-
-            Bid bid = bidService.placeBid(bidRequest, userId);
-            logger.info("Bid placed successfully by user ID: {}", userId);
-            return ResponseEntity.ok("Bid placed successfully");
-
+            LocalDateTime bidTime = LocalDateTime.now();
+            BidMessage bidMessage = new BidMessage(bidRequest.getSlotId(),userId,bidRequest.getBidAmount(),bidTime);
+            kafkaTemplate.send(BIDS_TOPIC,bidMessage);
+            logger.info("Bid under process for user ID: {}", userId);
+            return ResponseEntity.ok("Bid under process");
         } catch (NoSuchElementException e) {
-            String message = e.getMessage();
-            logger.error("Resource not found: {}", message);
-            if ("User not found".equals(message)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-            } else if ("Auction slot not found".equals(message)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Auction slot not found");
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Resource not found");
-            }
+            logger.error("User ID not found: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
 
         } catch (IllegalArgumentException e) {
             logger.error("Invalid bid request: {}", e.getMessage());
