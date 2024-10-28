@@ -23,7 +23,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\",\n    \"email\": \"testuser@example.com\"\n}"
+							"raw": "{\n    \"username\": \"testuser13\",\n    \"password\": \"Password@123\",\n    \"email\": \"testuser13@example.com\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/register",
@@ -50,7 +50,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\"\n}"
+							"raw": "{\n    \"username\": \"testuser12\",\n    \"password\": \"Password@123\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/authenticate",
@@ -87,7 +87,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"vendorName\": \"Vendor A\",\n    \"contactEmail\": \"vendorA@example.com\",\n    \"phoneNumber\": \"123-456-7890\"\n}"
+							"raw": "{\n    \"companyName\":\"ABC Corporation\",\n    \"contactInfo\":\"9116785559\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/vendors/register",
@@ -126,8 +126,37 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"productName\": \"Product A\",\n    \"description\": \"Description of Product A\",\n    \"price\": 99.99\n}"
+							"raw": "{\n    \"categoryId\": \"9efcf7a6-5aef-4137-84b7-5db805dce424\", \n    \"name\": \"New Copper Coin\",\n    \"description\": \"Description of New Copper Coins\",\n    \"basePrice\": 1000.00\n}"
 						},
+						"url": {
+							"raw": "{{base_url}}/api/products",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{base_url}}/api/products",
 							"host": [
@@ -164,7 +193,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"slotName\": \"Morning Slot\",\n    \"startTime\": \"2024-05-01T09:00:00Z\",\n    \"endTime\": \"2024-05-01T12:00:00Z\"\n}"
+							"raw": "{\n    \"productId\": \"0baa630a-bb11-4544-855c-5dde06474b6a\",\n    \"startTime\": \"2024-10-28T11:50:00Z\",\n    \"endTime\": \"2024-10-28T11:51:00Z\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/auction-slots",
@@ -227,18 +256,90 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"bidAmount\": 150.00,\n    \"productId\": \"<product-id>\"\n}"
+							"raw": "{\n    \"slotId\": \"01ca4a3f-03da-48dd-8547-070428e7f4d6\",\n    \"bidAmount\": 5000.00\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/bids/slots/<slot-id>",
+							"raw": "{{base_url}}/api/bids/slots",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
 								"bids",
-								"slots",
-								"<slot-id>"
+								"slots"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Category",
+			"item": [
+				{
+					"name": "Create category",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Ornaments\",\n    \"description\": \"All Ornaments Goods Only\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/categories",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Categories",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/categories",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"categories"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
 							]
 						}
 					},
