@@ -70,6 +70,7 @@ public class AuctionEndedEventConsumer {
             }
 
             // Find the highest bid
+            //We can use Redis Sorted Sets
             Bid winningBid = bids.stream()
                     .max(Comparator.comparing(Bid::getBidAmount))
                     .orElse(null);

@@ -131,9 +131,9 @@ public class AuctionSlotService {
 
     private void validateAuctionSlotTiming(LocalDateTime startTime, LocalDateTime endTime) {
         // Check that the auction slot duration is at least one day
-        if (Duration.between(startTime, endTime).toDays() < 1) {
-            logger.error("Auction slot duration is less than one day. Start: {}, End: {}", startTime, endTime);
-            throw new IllegalArgumentException("Auction slot duration must be at least 1 day.");
+        if (!endTime.isAfter(startTime)) {
+            logger.error("Auction slot end time must be after start time. Start: {}, End: {}", startTime, endTime);
+            throw new IllegalArgumentException("Auction slot end time must be after start time.");
         }
 
         // Check that start and end times are multiples of 30 minutes

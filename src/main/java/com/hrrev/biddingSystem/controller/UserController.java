@@ -1,6 +1,7 @@
 package com.hrrev.biddingSystem.controller;
 
 import com.hrrev.biddingSystem.dto.UserRegistrationRequest;
+import com.hrrev.biddingSystem.dto.UserResponse;
 import com.hrrev.biddingSystem.model.User;
 import com.hrrev.biddingSystem.service.UserService;
 import jakarta.validation.Valid;
@@ -32,8 +33,17 @@ public class UserController {
      */
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserRegistrationRequest userRegistrationRequest) {
+        if (userRegistrationRequest == null) {
+            logger.error("User registration request is null");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Registration request cannot be null");
+        }
+
         try {
-            User createdUser = userService.registerUser(userRegistrationRequest);
+            UserResponse createdUser = userService.registerUser(userRegistrationRequest);
+            if (createdUser == null) {
+                logger.error("UserService returned null for user registration");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create user");
+            }
             logger.info("User registered successfully with ID: {}", createdUser.getUserId());
             return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
 

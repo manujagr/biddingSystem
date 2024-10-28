@@ -1,6 +1,7 @@
 package com.hrrev.biddingSystem.service;
 
 import com.hrrev.biddingSystem.dto.UserRegistrationRequest;
+import com.hrrev.biddingSystem.dto.UserResponse;
 import com.hrrev.biddingSystem.model.User;
 import com.hrrev.biddingSystem.repository.UserRepository;
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -25,7 +27,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User registerUser(UserRegistrationRequest userRequest) {
+    public UserResponse registerUser(UserRegistrationRequest userRequest) {
         logger.info("Registering user with username: {}", userRequest.getUsername());
 
         if (userRepository.findByUsername(userRequest.getUsername()).isPresent()) {
@@ -43,10 +45,16 @@ public class UserService {
         user.setEmail(userRequest.getEmail());
         user.setPasswordHash(hashPassword(userRequest.getPassword()));
 
+        UserResponse userResponse = new UserResponse();
+        userResponse.setUserId(user.getUserId());
+        userResponse.setUsername(user.getUsername());
+        userResponse.setEmail(user.getEmail());
+        userResponse.setCreatedAt(LocalDateTime.now());
+        userResponse.setUpdatedAt(LocalDateTime.now());
         User savedUser = userRepository.save(user);
         logger.info("User registered successfully with ID: {}", savedUser.getUserId());
 
-        return savedUser;
+        return userResponse;
     }
 
     private String hashPassword(String password) {

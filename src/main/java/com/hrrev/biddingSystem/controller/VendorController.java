@@ -36,9 +36,18 @@ public class VendorController {
      */
     @PostMapping("/register")
     public ResponseEntity<?> registerVendor(@Valid @RequestBody VendorRegistrationRequest request) {
+        if (request == null) {
+            logger.error("Vendor registration request is null");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Vendor registration request cannot be null");
+        }
+
         try {
             UUID userId = SecurityUtil.getCurrentUserUUID();
             Vendor createdVendor = vendorService.registerVendor(request, userId);
+            if (createdVendor == null) {
+                logger.error("VendorService returned null for vendor registration");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create vendor");
+            }
             VendorResponse vendorResponse = new VendorResponse(createdVendor);
             logger.info("Vendor registered successfully with ID: {}", createdVendor.getVendorId());
             return ResponseEntity.status(HttpStatus.CREATED).body(vendorResponse);

@@ -34,7 +34,7 @@ public class BidController {
      * @param bidRequest The bid details.
      * @return ResponseEntity indicating the outcome of the bid placement.
      */
-    @PostMapping("/slots/{slotId}")
+    @PostMapping("/slots")
     public ResponseEntity<?> placeBid(@Valid @RequestBody BidRegistrationRequest bidRequest) {
         try {
             UUID userId = SecurityUtil.getCurrentUserUUID();
