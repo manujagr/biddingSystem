@@ -43,8 +43,11 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<?> createProduct(@RequestBody ProductRegistrationRequest productRequest) {
         UUID userUUID = null;
+        if (productRequest == null) {
+            logger.error("Product registration request is null");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product registration request cannot be null");
+        }
         try {
-
             UUID userId = SecurityUtil.getCurrentUserUUID();
             Product createdProduct = productService.createProduct(productRequest, userId);
             ProductResponse productResponse = new ProductResponse(createdProduct);

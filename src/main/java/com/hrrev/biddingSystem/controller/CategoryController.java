@@ -3,6 +3,9 @@ package com.hrrev.biddingSystem.controller;
 import com.hrrev.biddingSystem.dto.CategoryRequest;
 import com.hrrev.biddingSystem.dto.CategoryResponse;
 import com.hrrev.biddingSystem.service.CategoryService;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,7 @@ import java.util.UUID;
 @RequestMapping("/api/categories")
 public class CategoryController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
     private final CategoryService categoryService;
 
     @Autowired
@@ -25,7 +29,11 @@ public class CategoryController {
 
     // Create a new category
     @PostMapping
-    public ResponseEntity<CategoryResponse> createCategory(@RequestBody CategoryRequest categoryRequest) {
+    public ResponseEntity<?> createCategory(@Valid @RequestBody CategoryRequest categoryRequest) {
+        if (categoryRequest == null || categoryRequest.getName() == null || categoryRequest.getName().isBlank()) {
+            logger.error("Invalid Category registration request");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Category registration request cannot be null");
+        }
         CategoryResponse createdCategory = categoryService.createCategory(categoryRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
     }
