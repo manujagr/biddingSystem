@@ -8,7 +8,7 @@
 		<version>3.3.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.hrrev</groupId>
+	<groupId>com.intuit</groupId>
 	<artifactId>biddingSystem</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>biddingSystem</name>
