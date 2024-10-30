@@ -11,6 +11,7 @@
 	<groupId>com.intuit</groupId>
 	<artifactId>biddingSystem</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
 	<name>biddingSystem</name>
 	<description>Demo project for Bidding System</description>
 	<url/>
@@ -20,6 +21,15 @@
 	<developers>
 		<developer/>
 	</developers>
+	<modules>
+		<module>bidding-core</module>
+        <module>product</module>
+		<module>kafka</module>
+		<module>notification-service</module>
+        <module>redis</module>
+		<module>auction-bidding</module>
+        <module>bidding-springboot-application</module>
+    </modules>
 	<scm>
 		<connection/>
 		<developerConnection/>
