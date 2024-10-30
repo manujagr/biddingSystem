@@ -1,13 +1,13 @@
-package com.intuit.biddingSystem.Controller;
+package com.intuit.biddingSystem.auction.auctionslot.controller;
 
-import com.intuit.biddingSystem.controller.AuctionSlotController;
-import com.intuit.biddingSystem.dto.AuctionSlotRegistrationRequest;
-import com.intuit.biddingSystem.dto.AuctionSlotResponse;
-import com.intuit.biddingSystem.model.AuctionSlot;
-import com.intuit.biddingSystem.model.Category;
-import com.intuit.biddingSystem.model.Product;
-import com.intuit.biddingSystem.service.AuctionSlotService;
-import com.intuit.biddingSystem.util.SecurityUtil;
+
+import com.intuit.biddingSystem.auction.auctionslot.dto.AuctionSlotRegistrationRequest;
+import com.intuit.biddingSystem.auction.auctionslot.dto.AuctionSlotResponse;
+import com.intuit.biddingSystem.auction.auctionslot.model.AuctionSlot;
+import com.intuit.biddingSystem.auction.auctionslot.service.AuctionSlotService;
+import com.intuit.biddingSystem.coreUtils.authorization.utils.SecurityUtil;
+import com.intuit.biddingSystem.product.model.Category;
+import com.intuit.biddingSystem.product.model.Product;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;

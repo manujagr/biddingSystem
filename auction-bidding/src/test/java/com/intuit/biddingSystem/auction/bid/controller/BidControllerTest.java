@@ -1,16 +1,19 @@
-package com.intuit.biddingSystem.Controller;
+package com.intuit.biddingSystem.auction.bid.controller;
 
-import com.intuit.biddingSystem.controller.BidController;
-import com.intuit.biddingSystem.dto.BidRegistrationRequest;
-import com.intuit.biddingSystem.model.Bid;
-import com.intuit.biddingSystem.service.BidService;
-import com.intuit.biddingSystem.util.SecurityUtil;
+import com.intuit.biddingSystem.auction.bid.dto.BidRegistrationRequest;
+import com.intuit.biddingSystem.auction.bid.model.Bid;
+import com.intuit.biddingSystem.auction.bid.service.BidService;
+import com.intuit.biddingSystem.coreUtils.authorization.utils.SecurityUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -24,6 +27,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class BidControllerTest {
 
     @Mock

@@ -1,9 +1,8 @@
-package com.intuit.biddingSystem.Controller;
+package com.intuit.biddingSystem.product.controller;
 
-import com.intuit.biddingSystem.controller.CategoryController;
-import com.intuit.biddingSystem.dto.CategoryRequest;
-import com.intuit.biddingSystem.dto.CategoryResponse;
-import com.intuit.biddingSystem.service.CategoryService;
+import com.intuit.biddingSystem.product.dto.CategoryRequest;
+import com.intuit.biddingSystem.product.dto.CategoryResponse;
+import com.intuit.biddingSystem.product.service.CategoryService;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;

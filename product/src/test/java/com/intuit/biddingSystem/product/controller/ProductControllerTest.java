@@ -1,12 +1,11 @@
-package com.intuit.biddingSystem.Controller;
+package com.intuit.biddingSystem.product.controller;
 
-import com.intuit.biddingSystem.controller.ProductController;
-import com.intuit.biddingSystem.dto.ProductRegistrationRequest;
-import com.intuit.biddingSystem.dto.ProductResponse;
-import com.intuit.biddingSystem.model.Category;
-import com.intuit.biddingSystem.model.Product;
-import com.intuit.biddingSystem.service.ProductService;
-import com.intuit.biddingSystem.util.SecurityUtil;
+import com.intuit.biddingSystem.coreUtils.authorization.utils.SecurityUtil;
+import com.intuit.biddingSystem.product.dto.ProductRegistrationRequest;
+import com.intuit.biddingSystem.product.dto.ProductResponse;
+import com.intuit.biddingSystem.product.model.Category;
+import com.intuit.biddingSystem.product.model.Product;
+import com.intuit.biddingSystem.product.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

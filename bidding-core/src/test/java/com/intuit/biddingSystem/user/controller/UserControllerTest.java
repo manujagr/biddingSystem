@@ -1,9 +1,8 @@
-package com.intuit.biddingSystem.Controller;
+package com.intuit.biddingSystem.user.controller;
 
-import com.intuit.biddingSystem.controller.UserController;
-import com.intuit.biddingSystem.dto.UserRegistrationRequest;
-import com.intuit.biddingSystem.dto.UserResponse;
-import com.intuit.biddingSystem.service.UserService;
+import com.intuit.biddingSystem.user.dto.UserRegistrationRequest;
+import com.intuit.biddingSystem.user.dto.UserResponse;
+import com.intuit.biddingSystem.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
